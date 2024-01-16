@@ -1,7 +1,11 @@
 ﻿using Elatec.NET;
-using Elatec.NET.Model;
+using Elatec.NET.Cards;
+using Elatec.NET.Cards.Mifare;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace ElatecNetSampleApp
@@ -10,73 +14,136 @@ namespace ElatecNetSampleApp
     {
         static async Task Main(string[] args)
         {
-            ChipModel chip = new ChipModel();
+            var reader = TWN4ReaderDevice.Instance.FirstOrDefault();
 
-            //portNumber 0 is auto Detect e.g. USB it is not implemented to be changed during runtime
-            ReaderDevice readerDevice = new ReaderDevice(0);
-
-            if(ReaderDevice.Instance.Connect())
+            if (await reader.ConnectAsync())
             {
-                await ReaderDevice.Instance.BeepAsync(3, 500, 1500, 100);
-                chip = ReaderDevice.Instance.GetSingleChip(true); // HF = true / only 13,56Mhz chips please (False = 125kHz)
+                BaseChip chip = new BaseChip();
 
-                Console.WriteLine("CardType: {0}, UID: {1}, Multitype: {2}", chip.CardType, chip.UID, chip.Slave != null ? chip.Slave.CardType.ToString() : "no other technology");
+                await reader.BeepAsync(100, 1500, 500, 100);
+                chip = await reader.GetSingleChipAsync();
 
-                switch (chip.CardType)
+                Console.WriteLine("CardType: {0}, UID: {1}, Multitype: ", Enum.GetName(typeof(ChipType), chip.ChipType), chip.UIDHexString);
+
+                switch (chip.ChipType)
                 {
-                    case ChipType.DESFireEV1_8K:
-                        Console.WriteLine("\nDesfire EV1 8K found.\nList AppIDs if any:\n\n");
+                    case ChipType.MIFARE:
 
-                        foreach (uint appID in await ReaderDevice.Instance.GetDesfireAppIDsAsync() ?? new uint[] {0x0})
+                        await reader.PlayMelody(120, MySongs.OhWhenTheSaints);
+                        await reader.LedBlinkAsync(Leds.Green, 500, 500);
+
+                        MifareChip mifareChip = (MifareChip)chip;
+
+                        Console.WriteLine("\nFound: {0}\n", mifareChip.SubType);
+
+                        switch (mifareChip.SubType)
                         {
-                            Console.WriteLine("Found: AppID {0}\n", appID);
+                            case MifareChipSubType.DESFireEV1_256:
+                            case MifareChipSubType.DESFireEV1_2K:
+                            case MifareChipSubType.DESFireEV1_4K:
+                            case MifareChipSubType.DESFireEV1_8K:
+                                if(reader.IsTWN4LegicReader)
+                                {
+                                    // undocumented in elatec's devkit (as of customersupport): if the Reader is a TWN4 Multitec with LEGIC capabilities.
+                                    // SelectTag is not working. Instead, a SearchTag must be used. The SelectTag is then executed internally.
+                                    if(reader.IsTWN4LegicReader)
+                                    {
+                                        await reader.SearchTagAsync();
+                                    }
+                                }
+                                else
+                                {
+                                    await reader.ISO14443A_SelectTagAsync(chip.UID);
+                                }
+
+                                await reader.MifareDesfire_SelectApplicationAsync(0);
+                                await reader.MifareDesfire_CreateApplicationAsync(
+                                    DESFireAppAccessRights.KS_DEFAULT,
+                                    DESFireKeyType.DF_KEY_AES,
+                                    1,
+                                    0x3060);
+
+                                var appIDs = await reader.MifareDesfire_GetAppIDsAsync();
+
+                                foreach(var appID in appIDs)
+                                {
+                                    Console.WriteLine("\nFound AppID(s): {0}\n", appID.ToString("X8"));
+                                }
+                                break;
                         }
 
                         break;
 
                     default:
-                        Console.WriteLine(chip.CardType.ToString());
+                        Console.WriteLine("Chip Found: {0}", Enum.GetName(typeof(ChipType), chip.ChipType));
                         break;
                 }
-            }
+            }  
         }
     }
 
-    public class ReaderDevice
+    static class MySongs
     {
-        public ReaderDevice() { }
-        public ReaderDevice(int portNumber) { PortNumber = portNumber; }
-
-        private static object syncRoot = new object();
-        private static TWN4ReaderDevice instance;
-
-        public static int PortNumber { get; set; } 
-
-        // Singleton, do not create new object when already occupied
-        public static TWN4ReaderDevice Instance
+        public static List<TWN4ReaderDevice.Tone> OhWhenTheSaints
         {
-            get
+            get => new List<TWN4ReaderDevice.Tone>()
             {
-                lock (syncRoot)
-                {
-                    if (instance == null)
-                    {
-                        instance = new TWN4ReaderDevice(PortNumber);
-                        return instance;
-                    }
-                    else if (instance != null && !(instance is TWN4ReaderDevice))
-                    {
-                        instance = new TWN4ReaderDevice(PortNumber);
-                        return instance;
-                    }
-                    else
-                    {
-                        return instance;
-                    }
+                new TWN4ReaderDevice.Tone() { Value = 4,  Volume = 0, Pitch = NotePitch.PAUSE },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.C3 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.F3 },
 
-                }
+                new TWN4ReaderDevice.Tone() { Pitch = NotePitch.G3 },
 
-            }
+                new TWN4ReaderDevice.Tone() { Value = 4,  Volume = 0, Pitch = NotePitch.PAUSE },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.C3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.F3 },
+
+                new TWN4ReaderDevice.Tone() { Pitch = NotePitch.G3 },
+                // 1
+                new TWN4ReaderDevice.Tone() { Value = 4,  Volume = 0, Pitch = NotePitch.PAUSE },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.C3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.F3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.G3 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.E3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.C3 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.E3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 12, Pitch = NotePitch.D3 },
+                // 2
+                new TWN4ReaderDevice.Tone() { Value = 4,  Volume = 0, Pitch = NotePitch.PAUSE },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 12, Pitch = NotePitch.C3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.C3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.G3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.G3 },
+                new TWN4ReaderDevice.Tone() { Value = 12, Pitch = NotePitch.F3 },
+                // 3
+                new TWN4ReaderDevice.Tone() { Value = 4,  Volume = 0, Pitch = NotePitch.PAUSE },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.F3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.F3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.G3 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.E3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.C3 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.D3 },
+
+                new TWN4ReaderDevice.Tone() { Pitch = NotePitch.C3 }
+                // 4
+            };
         }
     }
 }
