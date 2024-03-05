@@ -21,6 +21,8 @@ namespace ElatecNetSampleApp
                 BaseChip chip = new BaseChip();
 
                 await reader.BeepAsync(100, 1500, 500, 100);
+                await reader.LedInitAsync();
+                await reader.LedBlinkAsync(Leds.All, 100, 300);
 
                 await reader.SetTagTypesAsync(LFTagTypes.NOTAG, HFTagTypes.AllHFTags);
                 chip = await reader.GetSingleChipAsync();
@@ -34,7 +36,6 @@ namespace ElatecNetSampleApp
                         case ChipType.MIFARE:
 
                             await reader.PlayMelody(160, MySongs.OhWhenTheSaints);
-                            await reader.LedBlinkAsync(Leds.Green, 500, 500);
 
                             MifareChip mifareChip = (MifareChip)chip;
 
