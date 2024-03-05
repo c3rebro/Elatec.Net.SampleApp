@@ -21,62 +21,77 @@ namespace ElatecNetSampleApp
                 BaseChip chip = new BaseChip();
 
                 await reader.BeepAsync(100, 1500, 500, 100);
+
+                await reader.SetTagTypesAsync(LFTagTypes.NOTAG, HFTagTypes.AllHFTags);
                 chip = await reader.GetSingleChipAsync();
 
-                Console.WriteLine("CardType: {0}, UID: {1}, Multitype: ", Enum.GetName(typeof(ChipType), chip.ChipType), chip.UIDHexString);
-
-                switch (chip.ChipType)
+                if(chip != null)
                 {
-                    case ChipType.MIFARE:
+                    Console.WriteLine("CardType: {0}, UID: {1}, Multitype: ", Enum.GetName(typeof(ChipType), chip.ChipType), chip.UIDHexString);
 
-                        await reader.PlayMelody(120, MySongs.OhWhenTheSaints);
-                        await reader.LedBlinkAsync(Leds.Green, 500, 500);
+                    switch (chip.ChipType)
+                    {
+                        case ChipType.MIFARE:
 
-                        MifareChip mifareChip = (MifareChip)chip;
+                            await reader.PlayMelody(160, MySongs.OhWhenTheSaints);
+                            await reader.LedBlinkAsync(Leds.Green, 500, 500);
 
-                        Console.WriteLine("\nFound: {0}\n", mifareChip.SubType);
+                            MifareChip mifareChip = (MifareChip)chip;
 
-                        switch (mifareChip.SubType)
-                        {
-                            case MifareChipSubType.DESFireEV1_256:
-                            case MifareChipSubType.DESFireEV1_2K:
-                            case MifareChipSubType.DESFireEV1_4K:
-                            case MifareChipSubType.DESFireEV1_8K:
-                                if(reader.IsTWN4LegicReader)
-                                {
-                                    // undocumented in elatec's devkit (as of customersupport): if the Reader is a TWN4 Multitec with LEGIC capabilities.
-                                    // SelectTag is not working. Instead, a SearchTag must be used. The SelectTag is then executed internally.
+                            Console.WriteLine("\nFound: {0}\n", mifareChip.SubType);
+
+                            switch (mifareChip.SubType & MifareChipSubType.DESFire)
+                            {
+                                case MifareChipSubType.DESFire:
                                     if(reader.IsTWN4LegicReader)
                                     {
-                                        await reader.SearchTagAsync();
+                                        // undocumented in elatec's devkit (as of customersupport): if the Reader is a TWN4 Multitec with LEGIC capabilities.
+                                        // SelectTag is not working. Instead, a SearchTag must be used. The SelectTag is then executed internally.
+                                        if(reader.IsTWN4LegicReader)
+                                        {
+                                            await reader.SearchTagAsync();
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    await reader.ISO14443A_SelectTagAsync(chip.UID);
-                                }
+                                    else
+                                    {
+                                        await reader.ISO14443A_SelectTagAsync(chip.UID);
+                                    }
 
-                                await reader.MifareDesfire_SelectApplicationAsync(0);
-                                await reader.MifareDesfire_CreateApplicationAsync(
-                                    DESFireAppAccessRights.KS_DEFAULT,
-                                    DESFireKeyType.DF_KEY_AES,
-                                    1,
-                                    0x3060);
+                                    try
+                                    {
+                                        var appIDs = await reader.MifareDesfire_GetAppIDsAsync();
 
-                                var appIDs = await reader.MifareDesfire_GetAppIDsAsync();
+                                        foreach (var appID in appIDs)
+                                        {
+                                            Console.WriteLine("Found AppID(s): {0}", appID.ToString("X8"));
+                                        }
+                                        
+                                        await reader.MifareDesfire_SelectApplicationAsync(0);
+                                        await reader.MifareDesfire_CreateApplicationAsync(
+                                            DESFireAppAccessRights.KS_DEFAULT,
+                                            DESFireKeyType.DF_KEY_AES,
+                                            1,
+                                            0x3060);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine("\nErr: {0}\n", e.Message);
+                                    }
+                                    break;
+                            }
+                            Console.ReadLine();
+                            break;
 
-                                foreach(var appID in appIDs)
-                                {
-                                    Console.WriteLine("\nFound AppID(s): {0}\n", appID.ToString("X8"));
-                                }
-                                break;
-                        }
+                        default:
+                            Console.WriteLine("Chip Found: {0}", Enum.GetName(typeof(ChipType), chip.ChipType));
+                            Console.ReadLine();
+                            break;
+                    }
+                }
 
-                        break;
-
-                    default:
-                        Console.WriteLine("Chip Found: {0}", Enum.GetName(typeof(ChipType), chip.ChipType));
-                        break;
+                else
+                {
+                    await reader.DisconnectAsync();
                 }
             }  
         }

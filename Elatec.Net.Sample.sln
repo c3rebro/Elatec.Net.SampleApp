@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elatec.Net.Sample", "Elatec.Net.Sample.csproj", "{3A927015-5C33-4A61-91D6-BE87BA7C5C1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elatec.NET", "..\..\Seafile\Dokumente Privat\Steven\Projekte\Software\Windows\Elatec.NET\Elatec.NET.csproj", "{C7778270-1536-4A31-B482-75E895D384F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elatec.NET", "..\Elatec.NET\Elatec.NET.csproj", "{DC107EF2-8C25-45E6-AAF7-E20BFDE28043}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{3A927015-5C33-4A61-91D6-BE87BA7C5C1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A927015-5C33-4A61-91D6-BE87BA7C5C1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A927015-5C33-4A61-91D6-BE87BA7C5C1B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7778270-1536-4A31-B482-75E895D384F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7778270-1536-4A31-B482-75E895D384F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7778270-1536-4A31-B482-75E895D384F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7778270-1536-4A31-B482-75E895D384F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC107EF2-8C25-45E6-AAF7-E20BFDE28043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC107EF2-8C25-45E6-AAF7-E20BFDE28043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC107EF2-8C25-45E6-AAF7-E20BFDE28043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC107EF2-8C25-45E6-AAF7-E20BFDE28043}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

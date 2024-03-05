@@ -50,8 +50,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="D:\Seafile\Dokumente Privat\Steven\Projekte\Software\Windows\Elatec.NET\Elatec.NET.csproj">
-      <Project>{53fbd2f3-638e-4892-9f09-9a372c8f76d2}</Project>
+    <ProjectReference Include="..\Elatec.NET\Elatec.NET.csproj">
+      <Project>{dc107ef2-8c25-45e6-aaf7-e20bfde28043}</Project>
       <Name>Elatec.NET</Name>
     </ProjectReference>
   </ItemGroup>
