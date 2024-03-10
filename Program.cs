@@ -35,12 +35,26 @@ namespace ElatecNetSampleApp
                     {
                         case ChipType.MIFARE:
 
-                            await reader.PlayMelody(160, MySongs.OhWhenTheSaints);
+                            Console.WriteLine("Play Melody? 1: Saints, 2: CamptownRaces");
+                            switch(Console.ReadLine())
+                            {
+                                case "1":
+                                    await reader.PlayMelody(90, MySongs.OhWhenTheSaints);
+                                    break;
+                                case "2":
+                                    await reader.PlayMelody(90, MySongs.CamptownRaces);
+                                    break;
+                                default:
+                                    break;
+
+                            }
+                            
 
                             MifareChip mifareChip = (MifareChip)chip;
 
                             Console.WriteLine("\nFound: {0}\n", mifareChip.SubType);
 
+                            // bitfield-filter on all desfire type chips (EV1 4k, EV2 32k, SmartMX-Desfire etc.)
                             switch (mifareChip.SubType & MifareChipSubType.DESFire)
                             {
                                 case MifareChipSubType.DESFire:
@@ -67,6 +81,7 @@ namespace ElatecNetSampleApp
                                             Console.WriteLine("Found AppID(s): {0}", appID.ToString("X8"));
                                         }
                                         
+                                        //try to create app, auth on picc first
                                         await reader.MifareDesfire_SelectApplicationAsync(0);
                                         await reader.MifareDesfire_CreateApplicationAsync(
                                             DESFireAppAccessRights.KS_DEFAULT,
@@ -158,6 +173,85 @@ namespace ElatecNetSampleApp
                 new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.D3 },
 
                 new TWN4ReaderDevice.Tone() { Pitch = NotePitch.C3 }
+                // 4
+            };
+        }
+
+        public static List<TWN4ReaderDevice.Tone> CamptownRaces
+        {
+            get => new List<TWN4ReaderDevice.Tone>()
+            {
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.H3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 12, Pitch = NotePitch.A3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.A3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+                // 1
+
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.D4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.H3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 8,  Pitch = NotePitch.A3 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 4,  Pitch = NotePitch.A3 },
+                new TWN4ReaderDevice.Tone() { Value = 16,  Pitch = NotePitch.G3 },
+                //2
+
+                new TWN4ReaderDevice.Tone() { Value = 6, Pitch = NotePitch.G3 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.G3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 16, Pitch = NotePitch.G4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 6, Pitch = NotePitch.E4 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.E4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.G4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 12, Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D4 },
+                //3
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.D4 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.E4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.D4 },
+                new TWN4ReaderDevice.Tone() { Value = 8, Pitch = NotePitch.H3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.A3 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.C4 },
+                new TWN4ReaderDevice.Tone() { Value = 4, Pitch = NotePitch.H3 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.A3 },
+                new TWN4ReaderDevice.Tone() { Value = 2, Pitch = NotePitch.A3 },
+
+                new TWN4ReaderDevice.Tone() { Value = 12, Pitch = NotePitch.G3 },
                 // 4
             };
         }
