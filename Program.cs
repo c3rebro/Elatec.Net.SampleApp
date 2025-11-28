@@ -35,7 +35,7 @@ namespace ElatecNetSampleApp
                     {
                         case ChipType.MIFARE:
 
-                            await reader.PlayMelody(160, MySongs.OhWhenTheSaints);
+                            await reader.PlayMelody(100, MySongs.OhWhenTheSaints);
 
                             MifareChip mifareChip = (MifareChip)chip;
 
@@ -88,6 +88,8 @@ namespace ElatecNetSampleApp
                             Console.ReadLine();
                             break;
                     }
+                    await reader.LedOffAsync(Leds.All);
+                    await reader.DisconnectAsync();
                 }
 
                 else
