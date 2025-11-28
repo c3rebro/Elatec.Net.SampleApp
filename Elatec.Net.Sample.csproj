@@ -50,10 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Elatec.NET\Elatec.NET.csproj">
-      <Project>{dc107ef2-8c25-45e6-aaf7-e20bfde28043}</Project>
-      <Name>Elatec.NET</Name>
-    </ProjectReference>
+    <PackageReference Include="Elatec.NET">
+      <Version>0.4.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
